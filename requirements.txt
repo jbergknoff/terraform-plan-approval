@@ -1,4 +1,5 @@
+ansi2html<2
 flask<2
-gunicorn
+gunicorn<21
 redis<3.6
-requests
+requests<3

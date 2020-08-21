@@ -8,7 +8,7 @@ import redis
 MAX_PLAN_SIZE_BYTES = 2 * 1024 * 1024
 ONE_HOUR_SECONDS = 60 * 60
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, template_folder='templates')
 redis_client = redis.Redis.from_url(os.environ['REDIS_URL'])
 
 
@@ -60,18 +60,17 @@ def display_plan(plan_id: str):
 	plan_base64 = redis_client.get(f'{plan_id}-plan')
 	if not plan_base64:
 		print(f'Cannot display form for unknown plan')
-		return f'Plan id {plan_id} not found', 404, {'content-type': 'text/html'}
+		return flask.render_template('not_found.html'), 404
 
 	try:
-		plan = base64.b64decode(plan_base64)
+		plan = base64.b64decode(plan_base64).decode('utf8')
 	except Exception as e:
 		print('Stored plan could not be decoded as base64', e)
-		return f'Stored plan could not be decoded as base64', 500, {'content-type': 'text/html'}
+		return flask.render_template('not_found.html'), 500
 
-	return flask.Response(
-		response=plan,
-		mimetype='text/plain',
-	)
+	status = redis_client.get(f'{plan_id}-status').decode('utf8')
+	return flask.render_template('plan.html', **{'plan_id': plan_id, 'plan': plan, 'status': status, 'pending': status == PlanStatus.PENDING})
+
 
 # PUT /plan/<uuid>/status approves or rejects the plan.
 @app.route('/plan/<string:plan_id>/status', methods=['PUT'])

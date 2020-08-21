@@ -1,0 +1,46 @@
+<!DOCTYPE>
+<html>
+<head>
+<title>terraform-plan-approval</title>
+{% if pending %}
+<script type="text/javascript">
+function submit(status) {
+	fetch(
+		'/plan/{{ plan_id }}/status',
+		{
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({status}),
+		},
+	).then(
+		(response) => {
+			if (response.status != 204) {
+				alert('Setting status failed');
+				return;
+			}
+
+			location.reload();
+		}
+	);
+}
+
+const approve = submit.bind(null, 'approved');
+const reject = submit.bind(null, 'rejected');
+</script>
+{% endif %}
+</head>
+
+<body style="text-align: center">
+{% if pending %}
+<h1>Approve this plan?</h1>
+<button onclick="approve()">Approve</button>
+<button onclick="reject()">Reject</button>
+{% else %}
+<h1>This plan was {{status}}.</h1>
+{% endif %}
+<hr>
+<pre>
+{{ plan | safe}}
+</pre>
+</body>
+</html>
