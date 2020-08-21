@@ -1,7 +1,7 @@
 source_paths = terraform_plan_approval
 container = docker run -i --rm -u $$(id -u):$$(id -g) -v "$$(pwd)":"$$(pwd)" -w "$$(pwd)" $(3) $(1) $(2)
-compose = docker-compose -f test/docker-compose.yml $(1)
-compose_run = UID_STRING=$$(id -u):$$(id -g) $(call compose, run --rm $(3) $(1) $(2))
+compose = UID_STRING=$$(id -u):$$(id -g) docker-compose -f test/docker-compose.yml $(1)
+compose_run = $(call compose, run --rm $(3) $(1) $(2))
 
 user_cache_dir := $(HOME)/.cache
 
@@ -26,7 +26,7 @@ dependencies:
 		-v "$(user_cache_dir)":"$(user_cache_dir)" -e XDG_CACHE_HOME="$(user_cache_dir)")
 
 test-setup:
-	UID_STRING=$$(id -u):$$(id -g) $(call compose, up -d)
+	$(call compose, up -d)
 
 .PHONY: test
 test:
@@ -34,3 +34,6 @@ test:
 
 test-cleanup:
 	-$(call compose, down -t 0)
+
+redis-cli:
+	$(call compose, exec redis redis-cli)

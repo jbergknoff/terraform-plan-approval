@@ -1,1 +1,1 @@
-web: gunicorn terraform_plan_approval.main --log-file -
+web: gunicorn terraform_plan_approval.main:app --log-file -

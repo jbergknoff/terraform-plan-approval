@@ -1,3 +1,4 @@
+import base64
 import os
 import unittest
 
@@ -8,5 +9,15 @@ api_base_url = os.environ['API_BASE_URL']
 
 class TestTerraformPlanApproval(unittest.TestCase):
 
-	def test_something(self):
-		assert requests.get(f'{api_base_url}/').text == 'Hello, world!'
+	def test_end_to_end(self):
+		plan_contents = 'hello, world!'
+		response = requests.post(f'{api_base_url}/plan', json={'plan_base64': base64.b64encode(plan_contents.encode('utf8')).decode('utf8')})
+		self.assertEqual(response.status_code, 201)
+		plan_id = response.json()['id']
+
+		self.assertEqual(requests.get(f'{api_base_url}/plan/{plan_id}').text, plan_contents)
+		self.assertEqual(requests.get(f'{api_base_url}/plan/{plan_id}/status').json()['status'], 'pending')
+		response = requests.put(f'{api_base_url}/plan/{plan_id}/status', json={'status': 'approved'})
+		self.assertEqual(response.status_code, 204)
+		z = requests.get(f'{api_base_url}/plan/{plan_id}/status').json()['status']
+		self.assertEqual(z, 'approved')
