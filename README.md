@@ -7,7 +7,4 @@ TODO development/deployment/how to use
 ## TODO
 
 * GitHub Actions for CI and CD
-* More tests
-* rate limiting
-* colorize plan?
 * deploy in heroku

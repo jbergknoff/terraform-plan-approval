@@ -9,7 +9,9 @@ MAX_PLAN_SIZE_BYTES = 2 * 1024 * 1024
 ONE_HOUR_SECONDS = 60 * 60
 
 app = flask.Flask(__name__, template_folder='templates')
-redis_client = redis.Redis.from_url(os.environ['REDIS_URL'])
+# Keep a small connection pool; don't want to exceed free tier usage.
+redis_connection_pool = redis.BlockingConnectionPool.from_url(os.environ['REDIS_URL'], max_connections=1)
+redis_client = redis.client.Redis(connection_pool=redis_connection_pool)
 
 
 class PlanStatus:
@@ -68,7 +70,12 @@ def display_plan(plan_id: str):
 		print('Stored plan could not be decoded as base64', e)
 		return flask.render_template('not_found.html'), 500
 
-	status = redis_client.get(f'{plan_id}-status').decode('utf8')
+	status = redis_client.get(f'{plan_id}-status')
+	if status:
+		status = status.decode('utf8')
+	else:
+		status = PlanStatus.PENDING
+
 	return flask.render_template('plan.html', **{'plan_id': plan_id, 'plan': plan, 'status': status, 'pending': status == PlanStatus.PENDING})
 
 

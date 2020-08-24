@@ -15,9 +15,12 @@ class TestTerraformPlanApproval(unittest.TestCase):
 		self.assertEqual(response.status_code, 201)
 		plan_id = response.json()['id']
 
-		self.assertEqual(requests.get(f'{api_base_url}/plan/{plan_id}').text, plan_contents)
+		self.assertTrue(plan_contents in requests.get(f'{api_base_url}/plan/{plan_id}').text)
 		self.assertEqual(requests.get(f'{api_base_url}/plan/{plan_id}/status').json()['status'], 'pending')
 		response = requests.put(f'{api_base_url}/plan/{plan_id}/status', json={'status': 'approved'})
 		self.assertEqual(response.status_code, 204)
 		z = requests.get(f'{api_base_url}/plan/{plan_id}/status').json()['status']
 		self.assertEqual(z, 'approved')
+
+	def test_non_existent_plan(self):
+		self.assertEqual(requests.get(f'{api_base_url}/plan/nonexistent-plan-id').status_code, 404)
