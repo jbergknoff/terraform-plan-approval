@@ -1,0 +1,41 @@
+name: CI
+
+on: push
+
+jobs:
+  code-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run code checks
+      run: make check
+
+  test:
+    needs: code-check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: make dependencies
+    - name: Test setup
+      run: make test-setup
+    - name: Run tests
+      run: make test
+    - name: Test cleanup
+      run: make test-cleanup
+      if: ${{ always() }}
+
+  # Following https://mikecoutermarsh.com/github-actions-deploy-to-heroku/
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    #if: github.ref == 'refs/heads/master'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Deploy to Heroku
+      env:
+        HEROKU_APP_NAME: terraform-plan-approval
+      if: github.ref == 'refs/heads/master' && job.status == 'success'
+      run: git push https://heroku:${{ secrets.HEROKU_AUTHORIZATION_TOKEN }}@git.heroku.com/$HEROKU_APP_NAME.git origin/master:master
