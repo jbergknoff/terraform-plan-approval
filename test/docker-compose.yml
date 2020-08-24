@@ -1,0 +1,33 @@
+version: '3'
+services:
+  terraform-plan-approval:
+    image: python:3.8.3-alpine3.12
+    command: vendor/bin/flask run --reload
+    user: $UID_STRING
+    environment:
+      PYTHONUSERBASE: vendor
+      PYTHONUNBUFFERED: 1
+      FLASK_APP: terraform_plan_approval/main.py:app
+      FLASK_RUN_PORT: 8000
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_ENV: development
+      REDIS_URL: redis://redis:6379
+    volumes:
+    - $PWD:$PWD
+    working_dir: $PWD
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6.0.6-alpine
+
+  tests:
+    image: python:3.8.3-alpine3.12
+    user: $UID_STRING
+    environment:
+      PYTHONUSERBASE: vendor
+      API_BASE_URL: http://terraform-plan-approval:8000
+    command: echo
+    volumes:
+    - $PWD:$PWD
+    working_dir: $PWD

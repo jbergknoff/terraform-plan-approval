@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h1>terraform-plan-approval</h1>
+
+<p>This is a tool for a Terraform plan approval workflow in GitHub Actions, because GH Actions has no built-in support for prompting a user for input. This is not meant for any serious usage, just for demonstration. <a href="https://github.com/jbergknoff/terraform-plan-approval">GitHub</a></p>
+
+<h2>Usage</h2>
+
+<ol>
+<li>Generate a plan with a GH Action, send that plan to this service:
+<br><br>
+<pre>curl -d '{"plan_base64": "..."}' -H 'content-type: application/json' https://terraform-plan-approval.herokuapp.com/plan</pre>
+</li>
+
+<li>Direct the user to <code>https://terraform-plan-approval.herokuapp.com/plan/&lt;id&gt;</code> in a web browser to approve or reject</li>
+
+<li>Poll <code>https://terraform-plan-approval.herokuapp.com/plan/&lt;id&gt;/status</code> in the GH Action until it returns <code>{"status": "approved"}</code> or <code>{"status": "rejected"}</code>.</li>
+</ol>
+{% endblock %}

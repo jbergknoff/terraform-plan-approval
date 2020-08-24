@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/ansi-to-html-umd@0.4.2/lib/ansi_to_html.umd.min.js"></script>
+<script type="text/javascript">
+window.addEventListener(
+	'DOMContentLoaded',
+	() => {
+		const plan_element = document.getElementById('plan');
+		plan_element.innerHTML = new AnsiToHtml().toHtml(plan_element.innerText);
+	}
+);
+</script>
+{% if pending %}
+<script type="text/javascript">
+function submit(status) {
+	fetch(
+		'/plan/{{ plan_id }}/status',
+		{
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({status}),
+		},
+	).then(
+		(response) => {
+			if (response.status != 204) {
+				alert('Setting status failed');
+				return;
+			}
+
+			location.reload();
+		}
+	);
+}
+
+const approve = submit.bind(null, 'approved');
+const reject = submit.bind(null, 'rejected');
+</script>
+{% endif %}
+{% endblock %}
+
+
+{% block body %}
+<div>
+{% if pending %}
+<h1>Approve this plan?</h1>
+{% else %}
+<h1>This plan was {{status}}.</h1>
+{% endif %}
+</div>
+<hr>
+<pre id="plan">
+{{ plan }}
+</pre>
+{% if pending %}
+<hr>
+<button onclick="approve()" class="btn btn-primary">Approve</button>
+<button onclick="reject()" class="btn btn-secondary">Reject</button>
+{% endif %}
+{% endblock %}
