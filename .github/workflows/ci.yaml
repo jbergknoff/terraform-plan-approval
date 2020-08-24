@@ -37,5 +37,4 @@ jobs:
     - name: Deploy to Heroku
       env:
         HEROKU_APP_NAME: terraform-plan-approval
-      if: github.ref == 'refs/heads/master' && job.status == 'success'
       run: git push https://heroku:${{ secrets.HEROKU_AUTHORIZATION_TOKEN }}@git.heroku.com/$HEROKU_APP_NAME.git origin/master:master
