@@ -24,7 +24,7 @@ class PlanStatus:
 
 @app.route('/')
 def hello():
-    return 'https://github.com/jbergknoff/terraform-plan-approval'
+    return flask.render_template('index.html')
 
 # POST /plan stashes contents in Redis, returns a uuid.
 @app.route('/plan', methods=['POST'])
