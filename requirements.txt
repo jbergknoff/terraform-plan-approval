@@ -1,4 +1,5 @@
 flask<2
+flask-talisman==0.7.0
 gunicorn<21
 redis<3.6
 requests<3

@@ -3,12 +3,16 @@ import os
 import uuid
 
 import flask
+import flask_talisman
 import redis
 
 MAX_PLAN_SIZE_BYTES = 2 * 1024 * 1024
 ONE_HOUR_SECONDS = 60 * 60
 
 app = flask.Flask(__name__, template_folder="templates")
+# Use Talisman to redirect to HTTPS
+flask_talisman.Talisman(app, content_security_policy=None)
+
 # Keep a small connection pool; don't want to exceed free tier usage.
 redis_connection_pool = redis.BlockingConnectionPool.from_url(
     os.environ["REDIS_URL"], max_connections=1
