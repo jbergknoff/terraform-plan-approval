@@ -145,11 +145,12 @@ def set_status(plan_id: str):
 # GET /plan/<uuid>/status serves the status. This is the polling endpoint.
 @app.route("/plan/<string:plan_id>/status", methods=["GET"])
 def get_status(plan_id: str):
-    status = redis_client.get(f"{plan_id}-status").decode("utf8")
+    status = redis_client.get(f"{plan_id}-status")
     if status is None:
         print("Could not get plan status: plan not found")
         return flask.jsonify({"error": f"Plan id {plan_id} not found"}), 404
 
+    status = status.decode("utf8")
     if status not in PlanStatus.allowed_statuses:
         print(
             f"Falling back on {PlanStatus.PENDING} for plan with invalid status {status}"
