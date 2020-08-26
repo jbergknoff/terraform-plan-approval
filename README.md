@@ -1,14 +1,16 @@
 # terraform-plan-approval
 
+This is the codebase powering https://terraform-plan-approval.herokuapp.com/.
+
 As of August 2020, [GitHub Actions has no support for prompting a user for input](https://github.community/t/prompting-for-user-input-in-github-action/125838/2). When running Terraform, that's a deal breaker: the ability to review and approve/reject plans is critical. This web app is a hacky workaround to make GitHub Actions usable for this Terraform use case. It's only intended for demonstration purposes. Please don't use this for anything real.
 
-This is the codebase powering https://terraform-plan-approval.herokuapp.com/. We can `POST` a plan to the service, and the service will then serve a page with the plan and approve/reject buttons. The service has an endpoint where we can check the status of the plan (pending/rejected/approved). We'll poll that status endpoint, waiting for the plan to be approved or rejected by a human, and then our workflow can proceed.
+We can `POST` a plan to the service, and the service will then serve a page with the plan and approve/reject buttons. The service has an endpoint where we can check the status of the plan (pending/rejected/approved). We'll poll that status endpoint, waiting for the plan to be approved or rejected by a human, and then our workflow can proceed.
 
 ![Approval prompt](/terraform_plan_approval/static/image/demo.png "Approval prompt")
 
 There is no authentication or authorization. The Heroku-hosted version of this should not be used in any important setting. Feel free to fork this and/or stand it up in a private network for internal use, though. The data is stored ephemerally in Redis.
 
-There will soon be an associated GitHub Action (TODO) which will interact with the service.
+The [jbergknoff/github-action-wait-for-terraform-plan-approval GitHub Action](https://github.com/jbergknoff/github-action-wait-for-terraform-plan-approval) ([Marketplace](https://github.com/marketplace/actions/wait-for-terraform-plan-approval)) helps you use this service in a workflow.
 
 ## Usage
 
